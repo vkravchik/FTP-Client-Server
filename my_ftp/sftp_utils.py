@@ -47,7 +47,7 @@ def get_dir_content(request_data):
         sftp = pysftp.Connection(host=request_data['host'],
                                  username=request_data['username'], password=request_data['password'], cnopts=cnopts)
 
-        current_dir = '/' if request_data['dir'] == '' else request_data['dir']
+        current_dir = '/' if request_data['dir'] == 'root' else request_data['dir']
 
         sftp.chdir(current_dir)
         files_in_dir = sftp.listdir()
@@ -62,17 +62,17 @@ def get_dir_content(request_data):
             sftp.close()
 
 
-def build_folder_ifo(files, ftp):
+def build_folder_ifo(files, sftp):
     info = []
     for file in files:
-        if ftp.nlst(file) == [file]:
+        if sftp.isdir(sftp.pwd + '/' + file):
             info.append({
                 'name': file,
-                'type': 'file'
+                'type': 'folder'
             })
         else:
             info.append({
                 'name': file,
-                'type': 'folder'
+                'type': 'file'
             })
     return info

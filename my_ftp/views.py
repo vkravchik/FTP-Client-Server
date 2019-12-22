@@ -1,4 +1,6 @@
 import json
+import os
+from wsgiref.util import FileWrapper
 
 import my_ftp.ftp_utils
 import my_ftp.sftp_utils
@@ -43,5 +45,14 @@ def download_file(request):
             filename = my_ftp.sftp_utils.download_file(json_data)
         else:
             filename = my_ftp.ftp_utils.download_file(json_data)
-        return JsonResponse(filename)
+            # return JsonResponse(filename)
+
+        wrapper = FileWrapper(open(filename, 'rb'))
+        response = HttpResponse(wrapper, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename=%s' % os.path.basename(filename)
+        response['Content-Length'] = os.path.getsize(filename)
+
+        os.remove(filename)
+
+        return response
     return HttpResponse(status=405)
