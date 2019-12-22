@@ -15,8 +15,12 @@ def get_or_post(request):
         return Response(serializer.data)
     elif request.method == 'POST':
         serializer = ConnectionSerializer(data=request.data)
-        if serializer.is_valid():
+
+        is_exist = Connection.objects.filter(host=request.data.get('host'), isSFTP=request.data.get('isSFTP')).count()
+
+        if serializer.is_valid() and is_exist == 0:
             serializer.save()
+
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
