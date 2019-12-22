@@ -4,5 +4,5 @@ from connection import views
 
 urlpatterns = [
     path('', views.get_or_post),
-    path('/<int:pk>', views.get_or_put_or_delete, name="get or put"),
+    path('<int:pk>', views.get_or_put_or_delete, name="get or put"),
 ]
