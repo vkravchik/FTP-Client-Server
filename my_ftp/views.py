@@ -1,5 +1,10 @@
 import json
+import os
+from wsgiref.util import FileWrapper
+
 import my_ftp.ftp_utils
+import my_ftp.sftp_utils
+
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
@@ -8,9 +13,13 @@ from django.views.decorators.csrf import csrf_exempt
 def connect(request):
     if request.method == 'POST':
         json_data = json.loads(request.body)
-        # response = ftp_backend.sftp_utils.connect(json_data)
-        my_ftp.ftp_utils.connect(json_data)
-        return JsonResponse({})
+
+        if json_data['isSFTP']:
+            response = my_ftp.sftp_utils.connect(json_data)
+        else:
+            response = my_ftp.ftp_utils.connect(json_data)
+
+        return JsonResponse(response)
     return HttpResponse(status=405)
 
 
@@ -18,7 +27,12 @@ def connect(request):
 def get_dir_content(request):
     if request.method == 'POST':
         json_data = json.loads(request.body)
-        response = my_ftp.ftp_utils.get_dir_content(json_data)
+
+        if json_data['isSFTP']:
+            response = my_ftp.sftp_utils.get_dir_content(json_data)
+        else:
+            response = my_ftp.ftp_utils.get_dir_content(json_data)
+
         return JsonResponse(response)
     return HttpResponse(status=405)
 
@@ -27,6 +41,18 @@ def get_dir_content(request):
 def download_file(request):
     if request.method == 'POST':
         json_data = json.loads(request.body)
-        my_ftp.ftp_utils.download_file(json_data)
-        return JsonResponse({})
+
+        if json_data['isSFTP']:
+            filename = my_ftp.sftp_utils.download_file(json_data)
+        else:
+            filename = my_ftp.ftp_utils.download_file(json_data)
+
+        wrapper = FileWrapper(open(filename, 'rb'))
+        response = HttpResponse(wrapper, content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename=%s' % os.path.basename(filename)
+        response['Content-Length'] = os.path.getsize(filename)
+
+        os.remove(filename)
+        # my_ftp.ftp_utils.download_file(json_data)
+        return JsonResponse(response)
     return HttpResponse(status=405)
