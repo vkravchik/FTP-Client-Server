@@ -19,5 +19,6 @@ from django.conf.urls import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('my_ftp.urls'))
+    path('api/ftp/', include('my_ftp.urls')),
+    path('api/connections/', include('connection.urls')),
 ]
