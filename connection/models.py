@@ -6,7 +6,7 @@ class Connection(models.Model):
     host = models.CharField(max_length=60)
     username = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
-    secure = models.BooleanField(null=False)
+    isSFTP = models.BooleanField(null=False)
 
     def __str__(self):
         return self.host

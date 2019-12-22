@@ -22,17 +22,16 @@ def download_file(data):
         ftp.connect(data['host'])
         ftp.login(data['username'], data['password'])
 
-        ftp.cwd(data['dir'])
+        current_dir = '/' if data['dir'] == 'root' else data['dir']
 
-        user = getpass.getuser()
-        out = "C:\\Users\\" + user + "\\Downloads\\" + data['filename']
+        if current_dir != '/':
+            ftp.cwd(current_dir)
 
-        with open(out, 'wb') as f:
-            ftp.retrbinary('RETR ' + data['filename'], f.write)
+        filename = data['filename']
 
-        return {
-            'status': 'Download success'
-        }
+        ftp.retrbinary("RETR " + filename, open(filename, 'wb').write)
+        return filename
+
     except Exception as e:
         return {
             str(e)

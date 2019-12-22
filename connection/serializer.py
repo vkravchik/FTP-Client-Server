@@ -5,4 +5,4 @@ from .models import Connection
 class ConnectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Connection
-        fields = ('id', 'host', 'username', 'password', 'secure')
+        fields = ('id', 'host', 'username', 'password', 'isSFTP')
